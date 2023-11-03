@@ -1,8 +1,8 @@
 package by.kihtenkoolga.parser.util;
 
-public class Util {
+class Util {
 
-    public static String escape(String s) {
+    protected static String escape(String s) {
         if (s == null)
             return null;
         StringBuffer sb = new StringBuffer();
@@ -10,7 +10,7 @@ public class Util {
         return sb.toString();
     }
 
-    public static void escape(String s, StringBuffer sb) {
+    protected static void escape(String s, StringBuffer sb) {
         final int len = s.length();
         for (int i = 0; i < len; i++) {
             char ch = s.charAt(i);
