@@ -21,12 +21,14 @@ ext {
 }
 
 tasks.withType(Test).configureEach {
+    jvmArgs = jvmArgs + ['--add-opens=java.base/java.time=ALL-UNNAMED']
     jvmArgs = jvmArgs + ['--add-opens=java.base/java.util=ALL-UNNAMED']
 }
 
 dependencies {
 
     testImplementation 'com.google.code.gson:gson:2.8.8'
+    implementation 'com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.2'
 
     testImplementation 'org.assertj:assertj-core:3.24.2'
     testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"

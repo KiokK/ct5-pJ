@@ -1,4 +1,4 @@
-package by.kihtenkoolga.util;
+package by.kihtenkoolga.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
