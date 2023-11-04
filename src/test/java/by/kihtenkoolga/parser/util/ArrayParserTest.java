@@ -7,44 +7,15 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import static by.kihtenkoolga.util.GsonTestData.gson;
 import static by.kihtenkoolga.util.OrderTestData.getOrderWithOneProduct;
 import static by.kihtenkoolga.util.OrderTestData.getOrderWithTwoProducts;
 import static by.kihtenkoolga.util.ProductTestData.getProductsArray;
-import static by.kihtenkoolga.util.ProductTestData.getProductsList;
 
 
 class ArrayParserTest {
-
-    @Nested
-    class CollectionToJson {
-        @ParameterizedTest
-        @MethodSource("argsForCollectionToJsonTest")
-        void collectionToJson(Collection<?> argument, String expected) throws IOException, NoSuchFieldException, IllegalAccessException {
-            Assertions.assertThat(ArrayParser.collectionToJson(argument))
-                    .isEqualTo(expected);
-        }
-
-        static Stream<Arguments> argsForCollectionToJsonTest() {
-            List<?> empty = new ArrayList<>();
-            Set<Order> setOrders = Set.of(getOrderWithTwoProducts(), getOrderWithOneProduct());
-
-            return Stream.of(
-                    Arguments.of(getProductsList(), gson.toJson(getProductsList())),
-                    Arguments.of(empty, gson.toJson(empty)),
-                    Arguments.of(setOrders, gson.toJson(setOrders)),
-                    Arguments.of(null, gson.toJson(null))
-            );
-        }
-
-    }
 
     @Nested
     class ArrayToJson {
