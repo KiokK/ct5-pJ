@@ -1,5 +1,7 @@
 package by.kihtenkoolga.parser.util;
 
+import java.util.UUID;
+
 class Util {
 
     protected static String escape(String s) {
@@ -40,6 +42,22 @@ class Util {
                     sb.append(ch);
             }
         }
+    }
+
+    protected static <T> T castObject(Class<T> clazz, String object) {
+        try {
+            return clazz.cast(Integer.parseInt(object));
+        } catch (NumberFormatException ignored) {
+        }
+        try {
+            return clazz.cast(Double.parseDouble(object));
+        } catch (NumberFormatException ignored) {
+        }
+        try {
+            return clazz.cast(UUID.fromString(object));
+        } catch (IllegalArgumentException ignored) {
+        }
+        return clazz.cast(object);
     }
 
 }

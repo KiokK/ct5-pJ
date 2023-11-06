@@ -27,9 +27,10 @@ tasks.withType(Test).configureEach {
 
 dependencies {
 
-    testImplementation 'com.google.code.gson:gson:2.8.8'
     implementation 'com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.2'
+    implementation 'commons-io:commons-io:2.6'
 
+    testImplementation 'com.google.code.gson:gson:2.8.8'
     testImplementation 'org.assertj:assertj-core:3.24.2'
     testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
