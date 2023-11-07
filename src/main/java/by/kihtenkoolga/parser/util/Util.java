@@ -1,5 +1,6 @@
 package by.kihtenkoolga.parser.util;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.UUID;
@@ -63,6 +64,10 @@ class Util {
         }
         try {
             return clazz.cast(OffsetDateTime.parse(object.toString()));
+        } catch (DateTimeParseException ignored) {
+        }
+        try {
+            return clazz.cast(LocalDate.parse(object.toString()));
         } catch (DateTimeParseException ignored) {
         }
         try {

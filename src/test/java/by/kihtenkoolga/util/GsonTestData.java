@@ -28,5 +28,8 @@ public class GsonTestData {
                     (JsonSerializer<LocalDate>) (localDate, type, jsonSerializationContext) ->
                             new JsonPrimitive(formatterLocalDt.format(localDate))
             )
+            .registerTypeAdapter(LocalDate.class, (JsonDeserializer<LocalDate>)
+                    (json, type, context) -> LocalDate.parse(json.getAsString())
+            )
             .create();
 }
