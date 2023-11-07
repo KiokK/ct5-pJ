@@ -1,5 +1,7 @@
 package by.kihtenkoolga.parser.util;
 
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.UUID;
 
 class Util {
@@ -44,19 +46,30 @@ class Util {
         }
     }
 
-    protected static <T> T castObject(Class<T> clazz, String object) {
+    protected static <T> T castObject(Class<T> clazz, Object object) {
+        if (object.getClass().equals(clazz))
+            return (T) object;
         try {
-            return clazz.cast(Integer.parseInt(object));
-        } catch (NumberFormatException ignored) {
-        }
-        try {
-            return clazz.cast(Double.parseDouble(object));
-        } catch (NumberFormatException ignored) {
-        }
-        try {
-            return clazz.cast(UUID.fromString(object));
+            return clazz.cast(UUID.fromString(object.toString()));
         } catch (IllegalArgumentException ignored) {
         }
+        try {
+            return clazz.cast(Integer.parseInt(object.toString()));
+        } catch (NumberFormatException ignored) {
+        }
+        try {
+            return clazz.cast(Double.parseDouble(object.toString()));
+        } catch (NumberFormatException ignored) {
+        }
+        try {
+            return clazz.cast(OffsetDateTime.parse(object.toString()));
+        } catch (DateTimeParseException ignored) {
+        }
+        try {
+            return clazz.cast(object.toString());
+        } catch (ClassCastException ignored) {
+        }
+
         return clazz.cast(object);
     }
 

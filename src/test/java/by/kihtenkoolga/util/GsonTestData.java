@@ -3,6 +3,7 @@ package by.kihtenkoolga.util;
 import by.kihtenkoolga.parser.util.Constants;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializer;
 
@@ -19,6 +20,9 @@ public class GsonTestData {
             .registerTypeAdapter(OffsetDateTime.class,
                     (JsonSerializer<OffsetDateTime>) (localDate, type, jsonSerializationContext) ->
                             new JsonPrimitive(formatterOffset.format(localDate))
+            )
+            .registerTypeAdapter(OffsetDateTime.class, (JsonDeserializer<OffsetDateTime>)
+                    (json, type, context) -> OffsetDateTime.parse(json.getAsString())
             )
             .registerTypeAdapter(LocalDate.class,
                     (JsonSerializer<LocalDate>) (localDate, type, jsonSerializationContext) ->

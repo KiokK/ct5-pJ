@@ -2,11 +2,15 @@ package by.kihtenkoolga.parser.util;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 
 import static by.kihtenkoolga.parser.util.Constants.ARR_END;
 import static by.kihtenkoolga.parser.util.Constants.ARR_SEPARATOR;
 import static by.kihtenkoolga.parser.util.Constants.ARR_START;
 import static by.kihtenkoolga.parser.util.Constants.NULL;
+import static by.kihtenkoolga.parser.util.Parser.deserialize;
 
 class ArrayParser {
 
@@ -31,6 +35,17 @@ class ArrayParser {
         }
         ans.append(ARR_END);
         return String.valueOf(ans);
+    }
+
+    protected static <T> ArrayList<T> deserializeArray(char[] json, T clazz) throws IOException, NoSuchFieldException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+        Type t = ((ParameterizedType) clazz).getActualTypeArguments()[0];
+        ArrayList<T> deserializeArr = new ArrayList<>();
+        Parser.i++;
+        while (json[Parser.i] != ']') {
+            T arrElement = deserialize(json, (Class<T>) t);
+            deserializeArr.add(arrElement);
+        }
+        return deserializeArr;
     }
 
 }

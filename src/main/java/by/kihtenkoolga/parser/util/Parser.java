@@ -1,9 +1,14 @@
 package by.kihtenkoolga.parser.util;
 
+import by.kihtenkoolga.exception.JsonDeserializeException;
+import by.kihtenkoolga.exception.JsonIncorrectDataParseException;
+import by.kihtenkoolga.exception.JsonParseFieldNameException;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,9 +23,11 @@ import static by.kihtenkoolga.parser.util.Constants.offsetDateTimeFormatter;
 
 public class Parser {
 
-    private static int i = 0;
+    public static int i = 0;
 
-    /** Глубина десереализации */
+    /**
+     * Глубина десереализации
+     */
     private static int DEPTH = 0;
 
     /**
@@ -112,20 +119,17 @@ public class Parser {
 
             if (--DEPTH == 0)
                 i = 0;
-            if (DEPTH == 0)
-                return Util.castObject(clazz,
-                        o.substring(1, o.length() - 1));
-            return Util.castObject(clazz, o);
+            return Util.castObject(clazz, o.substring(1, o.length() - 1));
         } catch (RuntimeException ignored) {
         }
 
         T object = clazz.newInstance();
-        Map<Object, Object> fieldValue = fromJson(json);
+        Map<Object, Object> fieldValue = fromJson(json, clazz);
 
         Field[] fields = clazz.getDeclaredFields();
         for (int i = 0; i < fields.length; i++) {
             fields[i].setAccessible(true);
-            fields[i].set(object, Util.castObject(fields[i].getType(), (String) fieldValue.get(fields[i].getName())));
+            fields[i].set(object, Util.castObject(fields[i].getType(), (Object) fieldValue.get(fields[i].getName())));
         }
 
         if (--DEPTH == 0)
@@ -150,7 +154,7 @@ public class Parser {
             val.append(json[pos++]);
             while (json.length > pos && (Character.isDigit(json[pos]) || json[pos] == '.')) {
                 if (json[pos] == '.' && point)
-                    throw new RuntimeException();
+                    throw new JsonIncorrectDataParseException(Double.TYPE.getName());
                 if (json[pos] == '.' && !point)
                     point = true;
                 val.append(json[pos++]);
@@ -171,37 +175,52 @@ public class Parser {
         return val.toString();
     }
 
-    public static Map.Entry<Object, Object> fromJsonO(char[] json) throws IOException, NoSuchFieldException, IllegalAccessException, InstantiationException, ClassNotFoundException {
+    public static <T> Map.Entry<Object, Object> fromJsonO(char[] json, Class<T> mainClass) throws IOException, NoSuchFieldException, IllegalAccessException, InstantiationException, ClassNotFoundException {
         if (json[i] == '"') {
-            String fieldName = getFieldName(json, i);
+            String field = getFieldName(json, i);
+            String fieldName = field.substring(1, field.length() - 1);
             i++;
-            if (i < json.length)
-                if (json[i] == ':') {
-                    i++;
-                    Object o = deserialize(json, Object.class);
-                    return Map.entry(fieldName, o);
+            if (json[i] == ':') {
+                i++;
+                Object o = null;
+                if (json[i] != '[') {
+                    o = deserialize(json, Arrays.stream(mainClass.getDeclaredFields())
+                            .filter(f -> f.getName().equals(fieldName))
+                            .findAny().orElseThrow(() -> new JsonParseFieldNameException(fieldName)).getType());
+                } else {
+                    if (json[i] == '[')
+                        o = ArrayParser.deserializeArray(json, Arrays.stream(mainClass.getDeclaredFields())
+                                .filter(f -> f.getName().equals(fieldName))
+                                .findAny().orElseThrow(() -> new JsonParseFieldNameException(fieldName))
+                                .getGenericType()
+                        );
                 }
+                return Map.entry(fieldName, o);
+            }
         }
-        return null;
+        throw new JsonDeserializeException(String.valueOf(i));
     }
 
-    public static Map<Object, Object> fromJson(char[] json) throws IOException, NoSuchFieldException, IllegalAccessException, InstantiationException, ClassNotFoundException {
+    public static <T> Map<Object, Object> fromJson(char[] json, Class<T> mainClass) throws IOException, NoSuchFieldException, IllegalAccessException, InstantiationException, ClassNotFoundException {
         Map<Object, Object> ans = new HashMap<>();
         if (json[i] == '{') {
             i++;
-            while (json.length > i && json[i] != '}') {
-                Object o = fromJsonO(json);
-                if (o instanceof Map.Entry<?, ?> pair) {
-                    ans.put(pair.getKey().toString().substring(1, pair.getKey().toString().length() - 1),
-                            pair.getValue().toString().substring(1, pair.getValue().toString().length() - 1));
+
+            while (json.length > i && json[i] != '{' && json[i] != ']') {
+                if (json[i] == '"') {
+                    Map.Entry<Object, Object> pair = fromJsonO(json, mainClass);
+                    ans.put(pair.getKey().toString(),
+                            pair.getValue());
                 }
                 i++;
             }
         }
-
-        if (json.length <= i)
+        if (json.length <= i || json[i] == '{' || json[i] == ']')
             return ans;
-        return fromJson(json);
+        if (json[i] == ',')
+            i++;
+
+        return fromJson(json, mainClass);
     }
 
 }

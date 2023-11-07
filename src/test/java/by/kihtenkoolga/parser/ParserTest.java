@@ -1,5 +1,6 @@
 package by.kihtenkoolga.parser;
 
+import by.kihtenkoolga.model.Order;
 import by.kihtenkoolga.model.Product;
 import by.kihtenkoolga.parser.util.Parser;
 import org.junit.jupiter.api.Nested;
@@ -14,6 +15,7 @@ import java.util.stream.Stream;
 import static by.kihtenkoolga.util.CustomerTestData.getCustomerAnn;
 import static by.kihtenkoolga.util.CustomerTestData.getCustomerNullOrEmptyFields;
 import static by.kihtenkoolga.util.GsonTestData.gson;
+import static by.kihtenkoolga.util.JsonTestData.getJsonOrder;
 import static by.kihtenkoolga.util.OrderTestData.getOrderWithTwoProducts;
 import static by.kihtenkoolga.util.PrimitiveTestData.getBoolean;
 import static by.kihtenkoolga.util.PrimitiveTestData.getDouble;
@@ -42,7 +44,8 @@ class ParserTest {
             return Stream.of(
                     Arguments.of(getJsonString(), gson.fromJson(getJsonString(), String.class)),
                     Arguments.of(getJsonInt(), gson.fromJson(getJsonInt(), Integer.class)),
-                    Arguments.of(getJsonProduct(), gson.fromJson(getJsonProduct(), Product.class))
+                    Arguments.of(getJsonProduct(), gson.fromJson(getJsonProduct(), Product.class)),
+                    Arguments.of(getJsonOrder(), gson.fromJson(getJsonOrder(), Order.class))
             );
         }
     }

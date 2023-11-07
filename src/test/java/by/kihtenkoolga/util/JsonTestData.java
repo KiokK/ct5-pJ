@@ -22,4 +22,8 @@ public class JsonTestData {
         return FileUtils.readFileToString(new File(PATH + "test-product.json"), StandardCharsets.UTF_8);
     }
 
+    public static String getJsonOrder() throws IOException {
+        return FileUtils.readFileToString(new File(PATH + "test-order.json"), StandardCharsets.UTF_8);
+    }
+
 }
