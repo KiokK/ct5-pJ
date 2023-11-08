@@ -30,4 +30,8 @@ public class JsonTestData {
         return FileUtils.readFileToString(new File(PATH + "test-customer.json"), StandardCharsets.UTF_8);
     }
 
+    public static String getMultiClass() throws IOException {
+        return FileUtils.readFileToString(new File(PATH + "test-multi-class.json"), StandardCharsets.UTF_8);
+    }
+
 }

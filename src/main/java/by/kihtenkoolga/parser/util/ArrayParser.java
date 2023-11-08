@@ -1,16 +1,14 @@
 package by.kihtenkoolga.parser.util;
 
+import by.kihtenkoolga.exception.ArraySerializeException;
+
 import java.io.IOException;
 import java.lang.reflect.Array;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 
 import static by.kihtenkoolga.parser.util.Constants.ARR_END;
 import static by.kihtenkoolga.parser.util.Constants.ARR_SEPARATOR;
 import static by.kihtenkoolga.parser.util.Constants.ARR_START;
 import static by.kihtenkoolga.parser.util.Constants.NULL;
-import static by.kihtenkoolga.parser.util.Parser.deserialize;
 
 class ArrayParser {
 
@@ -23,29 +21,21 @@ class ArrayParser {
     protected static String arrayToJson(Object array)  {
         if (array == null)
             return NULL;
-        StringBuilder ans = new StringBuilder(ARR_START);
+        StringBuilder arrayJsonString = new StringBuilder();
+        arrayJsonString.append(ARR_START);
+        int i = 1;
         try {
             if (Array.getLength(array) > 0)
-                ans.append(Parser.parseObject(Array.get(array, 0)));
-            for (int i = 1; i < Array.getLength(array); i++)
-                ans.append(ARR_SEPARATOR)
+                arrayJsonString.append(Parser.parseObject(Array.get(array, 0)));
+            for (i = 1; i < Array.getLength(array); i++)
+                arrayJsonString.append(ARR_SEPARATOR)
                    .append(Parser.parseObject(Array.get(array, i)));
         } catch (IOException | NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
+            throw new ArraySerializeException(i);
         }
-        ans.append(ARR_END);
-        return String.valueOf(ans);
+        arrayJsonString.append(ARR_END);
+        return String.valueOf(arrayJsonString);
     }
 
-    protected static <T> ArrayList<T> deserializeArray(char[] json, T clazz) throws IOException, NoSuchFieldException, ClassNotFoundException, IllegalAccessException, InstantiationException {
-        Type t = ((ParameterizedType) clazz).getActualTypeArguments()[0];
-        ArrayList<T> deserializeArr = new ArrayList<>();
-        Parser.i++;
-        while (json[Parser.i] != ']') {
-            T arrElement = deserialize(json, (Class<T>) t);
-            deserializeArr.add(arrElement);
-        }
-        return deserializeArr;
-    }
 
 }

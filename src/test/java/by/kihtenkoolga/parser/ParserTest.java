@@ -4,6 +4,7 @@ import by.kihtenkoolga.model.Customer;
 import by.kihtenkoolga.model.Order;
 import by.kihtenkoolga.model.Product;
 import by.kihtenkoolga.parser.util.Parser;
+import by.kihtenkoolga.util.MultiClassTestData;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -18,6 +19,7 @@ import static by.kihtenkoolga.util.CustomerTestData.getCustomerNullOrEmptyFields
 import static by.kihtenkoolga.util.GsonTestData.gson;
 import static by.kihtenkoolga.util.JsonTestData.getJsonCustomer;
 import static by.kihtenkoolga.util.JsonTestData.getJsonOrder;
+import static by.kihtenkoolga.util.JsonTestData.getMultiClass;
 import static by.kihtenkoolga.util.OrderTestData.getOrderWithTwoProducts;
 import static by.kihtenkoolga.util.PrimitiveTestData.getBoolean;
 import static by.kihtenkoolga.util.PrimitiveTestData.getDouble;
@@ -46,6 +48,7 @@ class ParserTest {
             return Stream.of(
                     Arguments.of(getJsonString(), gson.fromJson(getJsonString(), String.class)),
                     Arguments.of(getJsonInt(), gson.fromJson(getJsonInt(), Integer.class)),
+                    Arguments.of(getMultiClass(), gson.fromJson(getMultiClass(), MultiClassTestData.class)),
                     Arguments.of(getJsonProduct(), gson.fromJson(getJsonProduct(), Product.class)),
                     Arguments.of(getJsonOrder(), gson.fromJson(getJsonOrder(), Order.class)),
                     Arguments.of(getJsonCustomer(), gson.fromJson(getJsonCustomer(), Customer.class))
