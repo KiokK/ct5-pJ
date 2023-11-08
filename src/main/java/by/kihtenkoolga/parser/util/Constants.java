@@ -20,6 +20,14 @@ public class Constants {
     protected static final char POINT = '.';
     protected static final char FIELD_VALUE_SEPARATOR = ':';
     protected static final char QUOTATION_MARK = '"';
+    protected static final String NULL_IN_QUOTES = "\"null\"";
+    protected static final String TRUE_IN_QUOTES = "\"true\"";
+    protected static final String FALSE_IN_QUOTES = "\"false\"";
     protected static final char ESCAPED_SLASH = '\\';
+    protected static final char TAB = '\t';
+    protected static final char NEW_LINE = '\n';
+    protected static final char CARRIAGE_RETURN = '\r';
+    protected static final char FORMFEED = '\f';
+    protected static final char BACKSPACE = '\b';
 
 }

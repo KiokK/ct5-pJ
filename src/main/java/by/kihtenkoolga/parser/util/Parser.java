@@ -4,7 +4,6 @@ import by.kihtenkoolga.exception.JsonDeserializeException;
 import by.kihtenkoolga.exception.JsonIncorrectDataParseException;
 import by.kihtenkoolga.exception.JsonParseFieldNameException;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
@@ -21,19 +20,23 @@ import static by.kihtenkoolga.parser.util.Constants.ARR_SEPARATOR;
 import static by.kihtenkoolga.parser.util.Constants.ARR_START;
 import static by.kihtenkoolga.parser.util.Constants.ESCAPED_SLASH;
 import static by.kihtenkoolga.parser.util.Constants.FALSE;
+import static by.kihtenkoolga.parser.util.Constants.FALSE_IN_QUOTES;
 import static by.kihtenkoolga.parser.util.Constants.FIELD_VALUE_SEPARATOR;
 import static by.kihtenkoolga.parser.util.Constants.NULL;
+import static by.kihtenkoolga.parser.util.Constants.NULL_IN_QUOTES;
 import static by.kihtenkoolga.parser.util.Constants.OBJECT_END;
 import static by.kihtenkoolga.parser.util.Constants.OBJECT_START;
 import static by.kihtenkoolga.parser.util.Constants.POINT;
 import static by.kihtenkoolga.parser.util.Constants.QUOTATION_MARK;
 import static by.kihtenkoolga.parser.util.Constants.TRUE;
+import static by.kihtenkoolga.parser.util.Constants.TRUE_IN_QUOTES;
 import static by.kihtenkoolga.parser.util.Constants.localDateFormatter;
 import static by.kihtenkoolga.parser.util.Constants.offsetDateTimeFormatter;
 
 public class Parser {
 
     public static int i = 0;
+    private static int exceptionPosition = 0;
 
     /**
      * Глубина десереализации
@@ -47,11 +50,8 @@ public class Parser {
      *
      * @param obj объект, который будет переведён в json
      * @return строка представляющая json
-     * @throws IOException
-     * @throws NoSuchFieldException
-     * @throws IllegalAccessException
      */
-    protected static String parseObject(Object obj) throws IOException, NoSuchFieldException, IllegalAccessException {
+    protected static String parseObject(Object obj) {
         if (parseValue(obj) instanceof String json)
             return json;
 //      TODO:  Map serialization
@@ -65,11 +65,8 @@ public class Parser {
      * @param obj объект, который будет приведён к строке
      * @return исходный объект, если он не подошел ни одному из перечисленных класов, или объект класса <b>String</b>
      * содержащий его представление в json
-     * @throws IOException
-     * @throws NoSuchFieldException
-     * @throws IllegalAccessException
      */
-    private static Object parseValue(Object obj) throws IOException, NoSuchFieldException, IllegalAccessException {
+    private static Object parseValue(Object obj) {
         if (obj == null)
             return NULL;
 
@@ -103,7 +100,14 @@ public class Parser {
     }
 
 
-    public static String serialize(Object obj) throws NoSuchFieldException, IllegalAccessException, IOException {
+    /**
+     * Cериализует любой объект в последовательность, соответствующуу json формату. Метод {@link #parseObject(Object object)}
+     * используется для сериализации значения конкретного поля объекта
+     *
+     * @param obj объект, который надо представить в json формате
+     * @return json представление объекта
+     */
+    public static String serialize(Object obj) {
         if (parseValue(obj) instanceof String s)
             return s;
         StringBuilder jsonString = new StringBuilder();
@@ -115,7 +119,11 @@ public class Parser {
                     .append(QUOTATION_MARK)
                     .append(FIELD_VALUE_SEPARATOR);
             fields[i].setAccessible(true);
-            jsonString.append(parseObject(fields[i].get(obj)));
+            try {
+                jsonString.append(parseObject(fields[i].get(obj)));
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
             if (fields.length > i + 1)
                 jsonString.append(ARR_SEPARATOR);
         }
@@ -123,28 +131,45 @@ public class Parser {
         return String.valueOf(jsonString);
     }
 
-    public static <T> T deserialize(char[] json, Class<T> clazz) throws NoSuchFieldException, IllegalAccessException, IOException, InstantiationException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException {
+    /**
+     * Десериализует объект из заданного json представления и класса в
+     *
+     * @param json  последовательность символов, соответствующая json представлению объекта
+     * @param clazz класс ожидаемого обекта
+     * @param <T>   тип десериализуемого объекта
+     * @return десериализованный объект класса {@code Class<T>}
+     * @throws JsonDeserializeException при ошибочном представлении объекта в формате json
+     */
+    public static <T> T deserialize(char[] json, Class<T> clazz) throws JsonDeserializeException {
         if (json == null) {
             return null;
         }
-        depthIn();
+        deserializeDepthIn();
         try {
             String nextSimpleJsonValue = getNextSimpleValueFromJson(json, i);
-            depthBack();
+            deserializeDepthBack();
             return Util.castObject(clazz, nextSimpleJsonValue.substring(1, nextSimpleJsonValue.length() - 1));
         } catch (ClassCastException | JsonDeserializeException ignored) {
         }
 
-        T object = clazz.getDeclaredConstructor().newInstance();
-        Map<Object, Object> fieldValue = fromJson(json, clazz);
+        T object;
+        Map<Object, Object> fieldValue;
+        try {
+            object = clazz.getDeclaredConstructor().newInstance();
+            fieldValue = fromJson(json, clazz);
 
-        Field[] fields = clazz.getDeclaredFields();
-        for (Field field : fields) {
-            field.setAccessible(true);
-            field.set(object, Util.castObject(field.getType(), fieldValue.get(field.getName())));
+            Field[] fields = clazz.getDeclaredFields();
+            for (Field field : fields) {
+                field.setAccessible(true);
+                field.set(object, Util.castObject(field.getType(), fieldValue.get(field.getName())));
+            }
+        } catch (InvocationTargetException | InstantiationException | IllegalAccessException |
+                 NoSuchMethodException e) {
+            flush();
+            throw new JsonDeserializeException(exceptionPosition);
         }
 
-        depthBack();
+        deserializeDepthBack();
         return object;
     }
 
@@ -155,7 +180,7 @@ public class Parser {
      * @param json массив json - источник поиска значения
      * @param pos  позиция начала поиска
      * @return строковое представление значения из json источника или исключение
-     * @throws JsonDeserializeException        если значение оказалось не подходящим
+     * @throws JsonDeserializeException        если значение оказалось не подходящим для обработки по условию
      * @throws JsonIncorrectDataParseException если значение было не верного типа, например некорректное строковое
      *                                         представление числа с плавающей точкой, значения boolean или null
      */
@@ -173,27 +198,27 @@ public class Parser {
             return val.toString();
         }
         if (json[pos] == NULL.charAt(0)) {
-            if (NULL.equals(String.valueOf(Arrays.copyOfRange(json, pos, pos + NULL.length())))) {
+            if (pos + NULL.length() < json.length && NULL.equals(String.valueOf(Arrays.copyOfRange(json, pos, pos + NULL.length())))) {
                 i += NULL.length();
-                return QUOTATION_MARK + NULL + QUOTATION_MARK;
+                return NULL_IN_QUOTES;
             } else {
                 flush();
                 throw new JsonIncorrectDataParseException(null);
             }
         }
         if (json[pos] == TRUE.charAt(0)) {
-            if (TRUE.equals(String.valueOf(Arrays.copyOfRange(json, pos, pos + TRUE.length())))) {
+            if (pos + TRUE.length() < json.length && TRUE.equals(String.valueOf(Arrays.copyOfRange(json, pos, pos + TRUE.length())))) {
                 i += TRUE.length();
-                return QUOTATION_MARK + TRUE + QUOTATION_MARK;
+                return TRUE_IN_QUOTES;
             } else {
                 flush();
                 throw new JsonIncorrectDataParseException(Boolean.TYPE.getName());
             }
         }
         if (json[pos] == FALSE.charAt(0)) {
-            if (FALSE.equals(String.valueOf(Arrays.copyOfRange(json, pos, pos + FALSE.length())))) {
+            if (pos + FALSE.length() < json.length && FALSE.equals(String.valueOf(Arrays.copyOfRange(json, pos, pos + FALSE.length())))) {
                 i += FALSE.length();
-                return QUOTATION_MARK + FALSE + QUOTATION_MARK;
+                return FALSE_IN_QUOTES;
             } else {
                 flush();
                 throw new JsonIncorrectDataParseException(Boolean.TYPE.getName());
@@ -219,6 +244,13 @@ public class Parser {
         throw new JsonDeserializeException(i);
     }
 
+    /**
+     * Выделяет подстроку, являющуюся имененм поля начиная с символа " до следующего такого же
+     *
+     * @param json массив, содержащий структуру json - источник поиска значения
+     * @param pos  позиция начала поиска
+     * @return выделенное имя поля
+     */
     private static String getFieldName(char[] json, int pos) {
         StringBuilder val = new StringBuilder();
         do {
@@ -229,65 +261,87 @@ public class Parser {
         return val.toString();
     }
 
-    public static <T> Map.Entry<Object, Object> fromJsonFieldAndValue(char[] json, Class<T> mainClass) throws IOException, NoSuchFieldException, IllegalAccessException, InstantiationException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException {
+    /**
+     * Выделяет поле объекта и его значение в {@code Map.Entry}
+     *
+     * @param json            последовательность символов, соответствующая json представлению объекта
+     * @param objectCastClass класс десериализуемого обекта
+     * @param <T>             тип десериализуемого объекта
+     * @return {@code Map.Entry}, где key - поле объекта, а value - значение объекта
+     */
+    public static <T> Map.Entry<Object, Object> fromJsonFieldAndValue(char[] json, Class<T> objectCastClass) {
         if (json[i] == QUOTATION_MARK) {
             String field = getFieldName(json, i);
-            String fieldName = field.substring(1, field.length() - 1);
+            final String FIELD_NAME = field.substring(1, field.length() - 1);
+            System.out.println(FIELD_NAME);
+            Field currentField;
+            try {
+                currentField = Arrays.stream(objectCastClass.getDeclaredFields())
+                        .filter(f -> f.getName().equals(FIELD_NAME))
+                        .findAny().orElseThrow(() -> new JsonParseFieldNameException(FIELD_NAME));
+            } catch (JsonParseFieldNameException e) {
+                flush();
+                throw new JsonParseFieldNameException(FIELD_NAME);
+            }
             i++;
             if (json[i] == FIELD_VALUE_SEPARATOR) {
                 i++;
-                Object o;
+                Object deserializeObject;
                 if (json[i] != ARR_START) {
-                    o = deserialize(json, Arrays.stream(mainClass.getDeclaredFields())
-                            .filter(f -> f.getName().equals(fieldName))
-                            .findAny().orElseThrow(() -> new JsonParseFieldNameException(fieldName)).getType());
+                    deserializeObject = deserialize(json, currentField.getType());
                 } else {
-                    o = deserializeList(json, Arrays.stream(mainClass.getDeclaredFields())
-                            .filter(f -> f.getName().equals(fieldName))
-                            .findAny().orElseThrow(() -> new JsonParseFieldNameException(fieldName))
-                            .getGenericType()
-                    );
+                    deserializeObject = deserializeList(json, currentField.getGenericType());
                 }
-                return Map.entry(fieldName, o == null ? NULL : o);
+                return Map.entry(FIELD_NAME, deserializeObject == null ? NULL : deserializeObject);
             }
         }
-        int exceptionPosition = i;
         flush();
         throw new JsonDeserializeException(exceptionPosition);
 
     }
 
-    public static <T> Map<Object, Object> fromJson(char[] json, Class<T> mainClass) throws IOException, NoSuchFieldException, IllegalAccessException, InstantiationException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException {
-        Map<Object, Object> ans = new HashMap<>();
+    /**
+     * Парсит json представление объекта на {@code Map<Object, Object>} содержащую наименования полей и значения этих полей в объекте
+     * класса {@code Class<T>}
+     *
+     * @param json            последовательность символов, соответствующая json представлению объекта
+     * @param objectCastClass класс десериализуемого обекта
+     * @param <T>             тип десериализуемого объекта
+     * @return Map содержащая поля и значения объекта класса Class<T>
+     */
+    public static <T> Map<Object, Object> fromJson(char[] json, Class<T> objectCastClass) {
+        Map<Object, Object> parseFieldsWithValues = new HashMap<>();
         if (json[i] == OBJECT_START) {
             i++;
 
             while (json.length > i && json[i] != OBJECT_START && json[i] != ARR_END) {
                 if (json[i] == QUOTATION_MARK) {
-                    Map.Entry<Object, Object> pair = fromJsonFieldAndValue(json, mainClass);
-                    ans.put(pair.getKey().toString(),
+                    Map.Entry<Object, Object> pair = fromJsonFieldAndValue(json, objectCastClass);
+                    parseFieldsWithValues.put(pair.getKey().toString(),
                             pair.getValue());
                 }
                 i++;
             }
         }
-        if (json.length <= i || json[i] == OBJECT_START || json[i] == ARR_END)
-            return ans;
-        return fromJson(json, mainClass);
+        if (json.length <= i || json[i] == OBJECT_START || json[i] == ARR_END) {
+            return parseFieldsWithValues;
+        }
+        return fromJson(json, objectCastClass);
     }
 
     private static void flush() {
+        exceptionPosition = i;
         i = 0;
         DEPTH = 0;
     }
 
-    private static void depthBack() {
+    private static void deserializeDepthBack() {
         if (--DEPTH == 0) {
             i = 0;
         }
     }
 
-    private static void depthIn() {
+    private static void deserializeDepthIn() {
         DEPTH++;
     }
 

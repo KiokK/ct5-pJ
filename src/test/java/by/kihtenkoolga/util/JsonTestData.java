@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 public class JsonTestData {
 
     public static final String PATH = "src/test/java/by/kihtenkoolga/json/";
+    public static final String PATH_FOR_EXCEPTIONS = PATH + "withexceptions/";
 
     public static String getJsonString() throws IOException {
         return FileUtils.readFileToString(new File(PATH + "test-string.json"), StandardCharsets.UTF_8);
@@ -32,6 +33,22 @@ public class JsonTestData {
 
     public static String getMultiClass() throws IOException {
         return FileUtils.readFileToString(new File(PATH + "test-multi-class.json"), StandardCharsets.UTF_8);
+    }
+
+    public static String getProductWithExceptionNull() throws IOException {
+        return FileUtils.readFileToString(new File(PATH_FOR_EXCEPTIONS + "exception-test-null-product.json"), StandardCharsets.UTF_8);
+    }
+
+    public static String getProductWithExceptionTrue() throws IOException {
+        return FileUtils.readFileToString(new File(PATH_FOR_EXCEPTIONS + "exception-test-true-multi-class.json"), StandardCharsets.UTF_8);
+    }
+
+    public static String getProductWithExceptionFalse() throws IOException {
+        return FileUtils.readFileToString(new File(PATH_FOR_EXCEPTIONS + "exception-test-false-multi-class.json"), StandardCharsets.UTF_8);
+    }
+
+    public static String getProductWithExceptionPrice() throws IOException {
+        return FileUtils.readFileToString(new File(PATH_FOR_EXCEPTIONS + "exception-test-incorrect-price-product.json"), StandardCharsets.UTF_8);
     }
 
 }

@@ -1,11 +1,15 @@
 package by.kihtenkoolga.parser;
 
+import by.kihtenkoolga.exception.JsonDeserializeException;
+import by.kihtenkoolga.exception.JsonIncorrectDataParseException;
 import by.kihtenkoolga.model.Customer;
 import by.kihtenkoolga.model.Order;
 import by.kihtenkoolga.model.Product;
 import by.kihtenkoolga.parser.util.Parser;
 import by.kihtenkoolga.util.MultiClassTestData;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -20,6 +24,10 @@ import static by.kihtenkoolga.util.GsonTestData.gson;
 import static by.kihtenkoolga.util.JsonTestData.getJsonCustomer;
 import static by.kihtenkoolga.util.JsonTestData.getJsonOrder;
 import static by.kihtenkoolga.util.JsonTestData.getMultiClass;
+import static by.kihtenkoolga.util.JsonTestData.getProductWithExceptionFalse;
+import static by.kihtenkoolga.util.JsonTestData.getProductWithExceptionNull;
+import static by.kihtenkoolga.util.JsonTestData.getProductWithExceptionPrice;
+import static by.kihtenkoolga.util.JsonTestData.getProductWithExceptionTrue;
 import static by.kihtenkoolga.util.OrderTestData.getOrderWithTwoProducts;
 import static by.kihtenkoolga.util.PrimitiveTestData.getBoolean;
 import static by.kihtenkoolga.util.PrimitiveTestData.getDouble;
@@ -31,6 +39,7 @@ import static by.kihtenkoolga.util.JsonTestData.getJsonInt;
 import static by.kihtenkoolga.util.JsonTestData.getJsonProduct;
 import static by.kihtenkoolga.util.JsonTestData.getJsonString;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ParserTest {
 
@@ -52,6 +61,23 @@ class ParserTest {
                     Arguments.of(getJsonProduct(), gson.fromJson(getJsonProduct(), Product.class)),
                     Arguments.of(getJsonOrder(), gson.fromJson(getJsonOrder(), Order.class)),
                     Arguments.of(getJsonCustomer(), gson.fromJson(getJsonCustomer(), Customer.class))
+            );
+        }
+
+        @ParameterizedTest
+        @MethodSource("argsForDeserializeIncorrectDataParseExceptionTests")
+        void deserializeShouldThrowJsonIncorrectDataParseException(String argJson, Class<?> clazz) throws IOException, NoSuchFieldException, IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException {
+            assertThrows(JsonIncorrectDataParseException.class, () ->
+                    Parser.deserialize(argJson.toCharArray(), clazz));
+        }
+
+
+        static Stream<Arguments> argsForDeserializeIncorrectDataParseExceptionTests() throws IOException {
+            return Stream.of(
+                    Arguments.of(getProductWithExceptionNull(), Product.class),
+                    Arguments.of(getProductWithExceptionTrue(), MultiClassTestData.class),
+                    Arguments.of(getProductWithExceptionFalse(), MultiClassTestData.class),
+                    Arguments.of(getProductWithExceptionPrice(), Product.class)
             );
         }
     }

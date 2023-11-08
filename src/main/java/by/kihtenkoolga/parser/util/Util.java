@@ -5,10 +5,15 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.UUID;
 
+import static by.kihtenkoolga.parser.util.Constants.BACKSPACE;
+import static by.kihtenkoolga.parser.util.Constants.CARRIAGE_RETURN;
 import static by.kihtenkoolga.parser.util.Constants.ESCAPED_SLASH;
 import static by.kihtenkoolga.parser.util.Constants.FALSE;
+import static by.kihtenkoolga.parser.util.Constants.FORMFEED;
+import static by.kihtenkoolga.parser.util.Constants.NEW_LINE;
 import static by.kihtenkoolga.parser.util.Constants.NULL;
 import static by.kihtenkoolga.parser.util.Constants.QUOTATION_MARK;
+import static by.kihtenkoolga.parser.util.Constants.TAB;
 import static by.kihtenkoolga.parser.util.Constants.TRUE;
 
 class Util {
@@ -28,17 +33,17 @@ class Util {
             switch (currentChar) {
                 case QUOTATION_MARK -> sb.append("\\\"");
                 case ESCAPED_SLASH -> sb.append("\\\\");
-                case '\b' -> sb.append("\\b");
-                case '\f' -> sb.append("\\f");
-                case '\n' -> sb.append("\\n");
-                case '\r' -> sb.append("\\r");
-                case '\t' -> sb.append("\\t");
+                case BACKSPACE -> sb.append("\\b");
+                case FORMFEED -> sb.append("\\f");
+                case NEW_LINE -> sb.append("\\n");
+                case CARRIAGE_RETURN -> sb.append("\\r");
+                case TAB -> sb.append("\\t");
                 default -> sb.append(currentChar);
             }
         }
     }
 
-    protected static <T> T castObject(Class<T> clazz, Object object) {
+    protected static <T> T castObject(Class<T> clazz, Object object) throws ClassCastException {
         if (NULL.equals(object)) {
             return null;
         }
@@ -46,7 +51,7 @@ class Util {
             return clazz.cast(Boolean.TRUE);
         }
         if (FALSE.equals(object)) {
-             return clazz.cast(Boolean.FALSE);
+            return clazz.cast(Boolean.FALSE);
         }
         if (object.getClass().equals(clazz))
             return clazz.cast(object);

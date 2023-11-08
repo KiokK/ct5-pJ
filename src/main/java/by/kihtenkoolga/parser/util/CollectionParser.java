@@ -1,7 +1,5 @@
 package by.kihtenkoolga.parser.util;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -17,7 +15,12 @@ import static by.kihtenkoolga.parser.util.Parser.deserialize;
 
 public class CollectionParser {
 
-    protected static String collectionToJson(Collection<?> collection) throws IOException, NoSuchFieldException, IllegalAccessException {
+    /**
+     * Сериализует коллекцию, реализующую интерфейс {@code Collection} , по средствам обхода каждого элемента с использованиме
+     * @param collection коллекция, реализующую интерфейс {@code Collection}
+     * @return сериализованый объект в формате json
+     */
+    protected static String collectionToJson(Collection<?> collection) {
         if (collection == null)
             return NULL;
 
@@ -41,12 +44,20 @@ public class CollectionParser {
         return String.valueOf(jsonCollection);
     }
 
-    protected static <T> List<T> deserializeList(char[] json, T clazz) throws IOException, NoSuchFieldException, ClassNotFoundException, InvocationTargetException, IllegalAccessException, InstantiationException, NoSuchMethodException {
-        Type listElementType = ((ParameterizedType) clazz).getActualTypeArguments()[0];
-        List<T> deserializeArr = new ArrayList<>();
+    /**
+     * Находит в {@code json[]} начиная с позиции {@link Parser#i} последовательность, ограниченную '[' и ']'
+     * @param json последовательность символов json формата
+     * @param classParameterizedType generic тип класса, реализующего Collection<E>
+     * @return {@code List} элементов из json последовательности
+     * @param <T> generic тип коллекции, например: {@code java.util.List< model.Product>}
+     * @param <E> тип элемента в коллекции, например: {@code model.Product}
+     */
+    protected static <T, E> List<E> deserializeList(char[] json, T classParameterizedType) {
+        Type listElementType = ((ParameterizedType) classParameterizedType).getActualTypeArguments()[0];
+        List<E> deserializeArr = new ArrayList<>();
         Parser.i++;
         while (json[Parser.i] != ARR_END) {
-            T arrElement = deserialize(json, (Class<T>) listElementType);
+            E arrElement = deserialize(json, (Class<E>) listElementType);
             deserializeArr.add(arrElement);
         }
         return deserializeArr;
