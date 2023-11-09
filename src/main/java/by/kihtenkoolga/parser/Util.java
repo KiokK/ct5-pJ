@@ -33,7 +33,6 @@ public class Util {
         }
     }
 
-
     /**
      * Приводит объект класса или наследника <i> Number, Boolean, String, примитивы, null, Arrays, Collection</i>, а так же
      * объекты классов <i> UUID, OffsetDateTime, LocalDate </i>

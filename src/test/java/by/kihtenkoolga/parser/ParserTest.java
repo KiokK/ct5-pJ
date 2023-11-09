@@ -11,30 +11,29 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.stream.Stream;
 
 import static by.kihtenkoolga.util.CustomerTestData.getCustomerAnn;
 import static by.kihtenkoolga.util.CustomerTestData.getCustomerNullOrEmptyFields;
 import static by.kihtenkoolga.util.GsonTestData.gson;
 import static by.kihtenkoolga.util.JsonTestData.getJsonCustomer;
+import static by.kihtenkoolga.util.JsonTestData.getJsonInt;
 import static by.kihtenkoolga.util.JsonTestData.getJsonOrder;
+import static by.kihtenkoolga.util.JsonTestData.getJsonProduct;
+import static by.kihtenkoolga.util.JsonTestData.getJsonString;
 import static by.kihtenkoolga.util.JsonTestData.getMultiClass;
 import static by.kihtenkoolga.util.JsonTestData.getProductWithExceptionFalse;
 import static by.kihtenkoolga.util.JsonTestData.getProductWithExceptionNull;
 import static by.kihtenkoolga.util.JsonTestData.getProductWithExceptionPrice;
 import static by.kihtenkoolga.util.JsonTestData.getProductWithExceptionTrue;
 import static by.kihtenkoolga.util.OrderTestData.getOrderWithTwoProducts;
+import static by.kihtenkoolga.util.ProductTestData.getApple;
 import static by.kihtenkoolga.util.SimpleTestData.getBoolean;
 import static by.kihtenkoolga.util.SimpleTestData.getDouble;
 import static by.kihtenkoolga.util.SimpleTestData.getInt;
 import static by.kihtenkoolga.util.SimpleTestData.getNull;
 import static by.kihtenkoolga.util.SimpleTestData.getObject;
 import static by.kihtenkoolga.util.SimpleTestData.getString;
-import static by.kihtenkoolga.util.ProductTestData.getApple;
-import static by.kihtenkoolga.util.JsonTestData.getJsonInt;
-import static by.kihtenkoolga.util.JsonTestData.getJsonProduct;
-import static by.kihtenkoolga.util.JsonTestData.getJsonString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -63,11 +62,10 @@ class ParserTest {
 
         @ParameterizedTest
         @MethodSource("argsForDeserializeIncorrectDataParseExceptionTests")
-        void deserializeShouldThrowJsonIncorrectDataParseException(String argJson, Class<?> clazz) throws IOException, NoSuchFieldException, IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException {
+        void deserializeShouldThrowJsonIncorrectDataParseException(String argJson, Class<?> clazz) {
             assertThrows(JsonIncorrectDataParseException.class, () ->
                     Parser.deserialize(argJson.toCharArray(), clazz));
         }
-
 
         static Stream<Arguments> argsForDeserializeIncorrectDataParseExceptionTests() throws IOException {
             return Stream.of(
