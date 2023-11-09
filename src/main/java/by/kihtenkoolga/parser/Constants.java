@@ -1,4 +1,4 @@
-package by.kihtenkoolga.parser.util;
+package by.kihtenkoolga.parser;
 
 import java.time.format.DateTimeFormatter;
 
@@ -8,7 +8,6 @@ public class Constants {
     public static final DateTimeFormatter offsetDateTimeFormatter = DateTimeFormatter.ofPattern(offsetDateTimeFormat);
     public static final String localDateFormat = "yyyy-MM-dd";
     public static final DateTimeFormatter localDateFormatter = DateTimeFormatter.ofPattern(localDateFormat);
-
     protected static final String NULL = "null";
     protected static final String TRUE = "true";
     protected static final String FALSE = "false";

@@ -1,4 +1,4 @@
-package by.kihtenkoolga.parser.util;
+package by.kihtenkoolga.parser;
 
 import by.kihtenkoolga.model.Customer;
 import by.kihtenkoolga.model.Order;

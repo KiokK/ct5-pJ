@@ -1,15 +1,11 @@
 package by.kihtenkoolga.parser;
 
-import by.kihtenkoolga.exception.JsonDeserializeException;
 import by.kihtenkoolga.exception.JsonIncorrectDataParseException;
 import by.kihtenkoolga.model.Customer;
 import by.kihtenkoolga.model.Order;
 import by.kihtenkoolga.model.Product;
-import by.kihtenkoolga.parser.util.Parser;
 import by.kihtenkoolga.util.MultiClassTestData;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -29,11 +25,12 @@ import static by.kihtenkoolga.util.JsonTestData.getProductWithExceptionNull;
 import static by.kihtenkoolga.util.JsonTestData.getProductWithExceptionPrice;
 import static by.kihtenkoolga.util.JsonTestData.getProductWithExceptionTrue;
 import static by.kihtenkoolga.util.OrderTestData.getOrderWithTwoProducts;
-import static by.kihtenkoolga.util.PrimitiveTestData.getBoolean;
-import static by.kihtenkoolga.util.PrimitiveTestData.getDouble;
-import static by.kihtenkoolga.util.PrimitiveTestData.getInt;
-import static by.kihtenkoolga.util.PrimitiveTestData.getNull;
-import static by.kihtenkoolga.util.PrimitiveTestData.getString;
+import static by.kihtenkoolga.util.SimpleTestData.getBoolean;
+import static by.kihtenkoolga.util.SimpleTestData.getDouble;
+import static by.kihtenkoolga.util.SimpleTestData.getInt;
+import static by.kihtenkoolga.util.SimpleTestData.getNull;
+import static by.kihtenkoolga.util.SimpleTestData.getObject;
+import static by.kihtenkoolga.util.SimpleTestData.getString;
 import static by.kihtenkoolga.util.ProductTestData.getApple;
 import static by.kihtenkoolga.util.JsonTestData.getJsonInt;
 import static by.kihtenkoolga.util.JsonTestData.getJsonProduct;
@@ -48,7 +45,7 @@ class ParserTest {
 
         @ParameterizedTest
         @MethodSource("argsForDeserializeTest")
-        void deserialize(String argumentJson, Object expected) throws IOException, NoSuchFieldException, IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException {
+        void deserialize(String argumentJson, Object expected) {
             assertThat(Parser.deserialize(argumentJson.toCharArray(), expected.getClass()))
                     .isEqualTo(expected);
         }
@@ -87,7 +84,7 @@ class ParserTest {
 
         @ParameterizedTest
         @MethodSource("argsForParseTest")
-        void serialize(Object argument, String expected) throws IOException, NoSuchFieldException, IllegalAccessException {
+        void serialize(Object argument, String expected) {
             assertThat(Parser.serialize(argument))
                     .isEqualTo(expected);
         }
@@ -99,6 +96,7 @@ class ParserTest {
                     Arguments.of(getNull(), gson.toJson(getNull())),
                     Arguments.of(getDouble(), gson.toJson(getDouble())),
                     Arguments.of(getString(), gson.toJson(getString())),
+                    Arguments.of(getObject(), gson.toJson(getObject())),
                     Arguments.of(getApple(), gson.toJson(getApple())),
                     Arguments.of(getCustomerAnn(), gson.toJson(getCustomerAnn())),
                     Arguments.of(getCustomerNullOrEmptyFields(), gson.toJson(getCustomerNullOrEmptyFields())),

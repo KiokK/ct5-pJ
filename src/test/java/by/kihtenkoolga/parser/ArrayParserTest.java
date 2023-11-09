@@ -1,4 +1,4 @@
-package by.kihtenkoolga.parser.util;
+package by.kihtenkoolga.parser;
 
 import by.kihtenkoolga.model.Order;
 import org.assertj.core.api.Assertions;
@@ -19,6 +19,7 @@ class ArrayParserTest {
 
     @Nested
     class ArrayToJson {
+
         @ParameterizedTest
         @MethodSource("argsForArrayToJsonTest")
         void arrayToJson(Object argument, String expected) {
@@ -44,4 +45,5 @@ class ArrayParserTest {
             );
         }
     }
+
 }

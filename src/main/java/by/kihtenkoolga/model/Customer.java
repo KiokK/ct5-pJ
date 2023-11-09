@@ -3,17 +3,17 @@ package by.kihtenkoolga.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 
 @Data
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Customer {
+public class Customer extends Base {
 
-    private UUID id;
     private String firstName;
     private String lastName;
     private LocalDate dateBirth;

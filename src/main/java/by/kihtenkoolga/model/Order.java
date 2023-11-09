@@ -3,17 +3,17 @@ package by.kihtenkoolga.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @Data
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Order {
+public class Order extends Base{
 
-    private UUID id;
     private List<Product> products;
     private OffsetDateTime createDate;
 

@@ -1,6 +1,6 @@
 package by.kihtenkoolga.util;
 
-public class PrimitiveTestData {
+public class SimpleTestData {
 
     public static Boolean getBoolean() {
         return false;
@@ -9,6 +9,7 @@ public class PrimitiveTestData {
     public static Boolean getNull() {
         return null;
     }
+
     public static int getInt() {
         return 2;
     }
@@ -19,6 +20,10 @@ public class PrimitiveTestData {
 
     public static String getString() {
         return "sd";
+    }
+
+    public static Object getObject() {
+        return new Object();
     }
 
 }

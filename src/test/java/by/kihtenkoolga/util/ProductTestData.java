@@ -16,11 +16,19 @@ public class ProductTestData {
     private static final Double MELON_PRISE = 10.0;
 
     public static Product getApple() {
-        return new Product(APPLE_UUID, APPLE_NAME, APPLE_PRISE);
+        return Product.builder()
+                .id(APPLE_UUID)
+                .name(APPLE_NAME)
+                .price(APPLE_PRISE)
+                .build();
     }
 
     public static Product getMelon() {
-        return new Product(MELON_UUID, MELON_NAME, MELON_PRISE);
+        return Product.builder()
+                .id(MELON_UUID)
+                .name(MELON_NAME)
+                .price(MELON_PRISE)
+                .build();
     }
 
     public static Product[] getProductsArray() {

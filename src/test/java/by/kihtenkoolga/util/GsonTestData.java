@@ -1,6 +1,6 @@
 package by.kihtenkoolga.util;
 
-import by.kihtenkoolga.parser.util.Constants;
+import by.kihtenkoolga.parser.Constants;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;

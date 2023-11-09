@@ -11,9 +11,8 @@ import java.util.UUID;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Product extends Base{
+public class Base {
 
-    private String name;
-    private Double price;
+    private UUID id;
 
 }

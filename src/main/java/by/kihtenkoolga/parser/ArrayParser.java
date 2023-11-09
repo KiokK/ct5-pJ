@@ -1,13 +1,8 @@
-package by.kihtenkoolga.parser.util;
+package by.kihtenkoolga.parser;
 
 import java.lang.reflect.Array;
 
-import static by.kihtenkoolga.parser.util.Constants.ARR_END;
-import static by.kihtenkoolga.parser.util.Constants.ARR_SEPARATOR;
-import static by.kihtenkoolga.parser.util.Constants.ARR_START;
-import static by.kihtenkoolga.parser.util.Constants.NULL;
-
-class ArrayParser {
+public class ArrayParser {
 
     /**
      * Переводит любой массив (например {@code int[], Object[], Boolean[]}) в json, используя метод
@@ -17,19 +12,20 @@ class ArrayParser {
      * @return json представление массива
      */
     protected static String arrayToJson(Object array) {
-        if (array == null)
-            return NULL;
+        if (array == null) {
+            return Constants.NULL;
+        }
         StringBuilder arrayJsonString = new StringBuilder();
-        arrayJsonString.append(ARR_START);
-        int i = 1;
-        if (Array.getLength(array) > 0)
+        arrayJsonString.append(Constants.ARR_START);
+        if (Array.getLength(array) > 0) {
             arrayJsonString.append(Parser.parseObject(Array.get(array, 0)));
-        for (i = 1; i < Array.getLength(array); i++)
-            arrayJsonString.append(ARR_SEPARATOR)
+        }
+        for (int i = 1; i < Array.getLength(array); i++) {
+            arrayJsonString.append(Constants.ARR_SEPARATOR)
                     .append(Parser.parseObject(Array.get(array, i)));
-        arrayJsonString.append(ARR_END);
+        }
+        arrayJsonString.append(Constants.ARR_END);
         return String.valueOf(arrayJsonString);
     }
-
 
 }

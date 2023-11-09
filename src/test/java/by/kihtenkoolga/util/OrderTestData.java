@@ -22,11 +22,19 @@ public class OrderTestData {
     );
 
     public static Order getOrderWithTwoProducts() {
-        return new Order(ORDER_UUID, getProductsList(), ORDER_DATE_TIME);
+        return Order.builder()
+                .id(ORDER_UUID)
+                .products(getProductsList())
+                .createDate(ORDER_DATE_TIME)
+                .build();
     }
 
     public static Order getOrderWithOneProduct() {
-        return new Order(ORDER_UUID, List.of(getApple()), ORDER_DATE_TIME);
+        return Order.builder()
+                .id(ORDER_UUID)
+                .products(List.of(getApple()))
+                .createDate(ORDER_DATE_TIME)
+                .build();
     }
 
 }

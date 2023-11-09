@@ -23,22 +23,23 @@ public class CustomerTestData {
     private static final List<Order> CUSTOMER_EMPTY_ORDERS = new ArrayList<>();
 
     public static Customer getCustomerAnn() {
-        return new Customer(
-                CUSTOMER_ANN_ID,
-                CUSTOMER_ANN_FIRST_NAME,
-                CUSTOMER_ANN_LAST_NAME,
-                CUSTOMER_ANN_DATE_BIRTH,
-                List.of(OrderTestData.getOrderWithOneProduct(), OrderTestData.getOrderWithTwoProducts())
-        );
+        return Customer.builder()
+                .id(CUSTOMER_ANN_ID)
+                .firstName(CUSTOMER_ANN_FIRST_NAME)
+                .lastName(CUSTOMER_ANN_LAST_NAME)
+                .dateBirth(CUSTOMER_ANN_DATE_BIRTH)
+                .orders(List.of(OrderTestData.getOrderWithOneProduct(), OrderTestData.getOrderWithTwoProducts()))
+                .build();
     }
 
     public static Customer getCustomerNullOrEmptyFields() {
-        return new Customer(
-                CUSTOMER_NULL_ID,
-                CUSTOMER_NULL_FIRST_NAME,
-                CUSTOMER_EMPTY_LAST_NAME,
-                CUSTOMER_NULL_DATE_BIRTH,
-                CUSTOMER_EMPTY_ORDERS
-        );
+        return Customer.builder()
+                .id(CUSTOMER_NULL_ID)
+                .firstName(CUSTOMER_NULL_FIRST_NAME)
+                .lastName(CUSTOMER_EMPTY_LAST_NAME)
+                .dateBirth(CUSTOMER_NULL_DATE_BIRTH)
+                .orders(CUSTOMER_EMPTY_ORDERS)
+                .build();
     }
+
 }
