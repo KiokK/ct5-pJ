@@ -32,8 +32,9 @@ public class Parser {
      * @return строка представляющая json
      */
     protected static String parseObject(Object obj) {
-        if (castToStringJsonOrReturnInitial(obj) instanceof String json)
+        if (castToStringJsonOrReturnInitial(obj) instanceof String json) {
             return json;
+        }
         return serialize(obj);
     }
 
@@ -95,7 +96,8 @@ public class Parser {
         Map<Object, Object> fieldValue;
         try {
             object = clazz.getDeclaredConstructor().newInstance();
-            fieldValue = fromJson(json, clazz);
+            Map<String, Field> allFields = getAllFields(clazz);
+            fieldValue = fromJson(json, allFields, clazz);
 
             Field[] fields = clazz.getDeclaredFields();
             for (Field field : fields) {
@@ -209,12 +211,10 @@ public class Parser {
      * @param <T>             тип десериализуемого объекта
      * @return {@code Map.Entry}, где key - поле объекта, а value - значение объекта
      */
-    private static <T> Map.Entry<Object, Object> fromJsonFieldAndValue(char[] json, Class<T> objectCastClass) {
+    private static <T> Map.Entry<Object, Object> fromJsonFieldAndValue(char[] json, Map<String, Field> allFields, Class<T> objectCastClass) {
         if (json[i] == Constants.QUOTATION_MARK) {
             String field = getFieldName(json, i);
             final String FIELD_NAME = field.substring(1, field.length() - 1);
-            System.out.println(FIELD_NAME);
-            Map<String, Field> allFields = getAllFields(objectCastClass);
             Field currentField = allFields.get(FIELD_NAME);
             if (currentField == null) {
                 flush();
@@ -266,14 +266,14 @@ public class Parser {
      * @param <T>             тип десериализуемого объекта
      * @return Map содержащая поля и значения объекта класса Class<T>
      */
-    private static <T> Map<Object, Object> fromJson(char[] json, Class<T> objectCastClass) {
+    private static <T> Map<Object, Object> fromJson(char[] json, Map<String, Field> allFields, Class<T> objectCastClass) {
         Map<Object, Object> parseFieldsWithValues = new HashMap<>();
         if (json[i] == Constants.OBJECT_START) {
             i++;
 
             while (json.length > i && json[i] != Constants.OBJECT_START && json[i] != Constants.ARR_END) {
                 if (json[i] == Constants.QUOTATION_MARK) {
-                    Map.Entry<Object, Object> pair = fromJsonFieldAndValue(json, objectCastClass);
+                    Map.Entry<Object, Object> pair = fromJsonFieldAndValue(json, allFields, objectCastClass);
                     parseFieldsWithValues.put(pair.getKey().toString(),
                             pair.getValue());
                 }
@@ -283,7 +283,7 @@ public class Parser {
         if (json.length <= i || json[i] == Constants.OBJECT_START || json[i] == Constants.ARR_END) {
             return parseFieldsWithValues;
         }
-        return fromJson(json, objectCastClass);
+        return fromJson(json, allFields, objectCastClass);
     }
 
     private static void flush() {
