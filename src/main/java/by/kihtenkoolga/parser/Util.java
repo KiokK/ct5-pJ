@@ -9,10 +9,12 @@ import java.util.UUID;
 public class Util {
 
     public static String escape(String s) {
-        if (s == null)
+        if (s == null) {
             return null;
+        }
         StringBuffer sb = new StringBuffer();
         escape(s, sb);
+
         return sb.toString();
     }
 
@@ -72,6 +74,7 @@ public class Util {
         if (obj instanceof Collection<?> collection) {
             return CollectionParser.collectionToJson(collection);
         }
+
         return obj;
     }
 

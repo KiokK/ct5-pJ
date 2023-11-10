@@ -18,9 +18,9 @@ public class CollectionParser {
      * @return сериализованый объект в формате json
      */
     protected static String collectionToJson(Collection<?> collection) {
-        if (collection == null)
+        if (collection == null) {
             return Constants.NULL;
-
+        }
         Iterator<?> iter = collection.iterator();
 
         StringBuilder jsonCollection = new StringBuilder();
@@ -36,8 +36,8 @@ public class CollectionParser {
             nextValue = iter.next();
             jsonCollection.append(Parser.parseObject(nextValue));
         }
-
         jsonCollection.append(Constants.ARR_END);
+
         return String.valueOf(jsonCollection);
     }
 
@@ -58,6 +58,7 @@ public class CollectionParser {
             E arrElement = deserialize(json, (Class<E>) listElementType);
             deserializeArr.add(arrElement);
         }
+
         return deserializeArr;
     }
 

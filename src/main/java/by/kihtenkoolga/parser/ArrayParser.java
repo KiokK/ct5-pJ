@@ -25,6 +25,7 @@ public class ArrayParser {
                     .append(Parser.parseObject(Array.get(array, i)));
         }
         arrayJsonString.append(Constants.ARR_END);
+
         return String.valueOf(arrayJsonString);
     }
 

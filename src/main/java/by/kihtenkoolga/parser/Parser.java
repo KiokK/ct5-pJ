@@ -35,6 +35,7 @@ public class Parser {
         if (castToStringJsonOrReturnInitial(obj) instanceof String json) {
             return json;
         }
+
         return serialize(obj);
     }
 
@@ -64,10 +65,11 @@ public class Parser {
             }
             jsonString.append(Constants.ARR_SEPARATOR);
         }
-        if (allFields.values().size() > 0) {
+        if (allFields.values().size() > 1) {
             jsonString.deleteCharAt(jsonString.length() - 1);
         }
         jsonString.append(Constants.OBJECT_END);
+
         return String.valueOf(jsonString);
     }
 
@@ -88,6 +90,7 @@ public class Parser {
         try {
             String nextSimpleJsonValue = getNextSimpleValueFromJson(json, i);
             deserializeDepthBack();
+
             return Util.castObjectToClassType(clazz, nextSimpleJsonValue.substring(1, nextSimpleJsonValue.length() - 1));
         } catch (ClassCastException | JsonDeserializeException ignored) {
         }
@@ -109,8 +112,8 @@ public class Parser {
             flush();
             throw new JsonDeserializeException(exceptionPosition);
         }
-
         deserializeDepthBack();
+
         return object;
     }
 
@@ -137,11 +140,13 @@ public class Parser {
             }
             val.append(json[pos]);
             i = ++pos;
+
             return val.toString();
         }
         if (json[pos] == Constants.NULL.charAt(0)) {
             if (pos + Constants.NULL.length() < json.length && Constants.NULL.equals(String.valueOf(Arrays.copyOfRange(json, pos, pos + Constants.NULL.length())))) {
                 i += Constants.NULL.length();
+
                 return Constants.NULL_IN_QUOTES;
             } else {
                 flush();
@@ -151,6 +156,7 @@ public class Parser {
         if (json[pos] == Constants.TRUE.charAt(0)) {
             if (pos + Constants.TRUE.length() < json.length && Constants.TRUE.equals(String.valueOf(Arrays.copyOfRange(json, pos, pos + Constants.TRUE.length())))) {
                 i += Constants.TRUE.length();
+
                 return Constants.TRUE_IN_QUOTES;
             } else {
                 flush();
@@ -160,6 +166,7 @@ public class Parser {
         if (json[pos] == Constants.FALSE.charAt(0)) {
             if (pos + Constants.FALSE.length() < json.length && Constants.FALSE.equals(String.valueOf(Arrays.copyOfRange(json, pos, pos + Constants.FALSE.length())))) {
                 i += Constants.FALSE.length();
+
                 return Constants.FALSE_IN_QUOTES;
             } else {
                 flush();
@@ -181,6 +188,7 @@ public class Parser {
             }
             i = pos;
             val.append(Constants.QUOTATION_MARK);
+
             return val.toString();
         }
         throw new JsonDeserializeException(i);
@@ -200,6 +208,7 @@ public class Parser {
         } while (json[pos] != Constants.QUOTATION_MARK);
         val.append(json[pos]);
         i = pos;
+
         return val.toString();
     }
 
@@ -229,6 +238,7 @@ public class Parser {
                 } else {
                     deserializeObject = CollectionParser.deserializeList(json, currentField.getGenericType());
                 }
+
                 return Map.entry(FIELD_NAME, deserializeObject == null ? Constants.NULL : deserializeObject);
             }
         }
@@ -254,6 +264,7 @@ public class Parser {
             }
             clazz = clazz.getSuperclass();
         } while (clazz != Object.class);
+
         return allFields;
     }
 
@@ -283,10 +294,11 @@ public class Parser {
         if (json.length <= i || json[i] == Constants.OBJECT_START || json[i] == Constants.ARR_END) {
             return parseFieldsWithValues;
         }
+
         return fromJson(json, allFields, objectCastClass);
     }
 
-    private static void flush() {
+    public static void flush() {
         exceptionPosition = i;
         i = 0;
         DEPTH = 0;
